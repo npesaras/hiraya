@@ -1,0 +1,9 @@
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]
+
+[mcp_servers.nuxt]
+url = "https://nuxt.com/mcp"
+
+[mcp_servers.nuxt-ui]
+url = "https://ui.nuxt.com/mcp"
