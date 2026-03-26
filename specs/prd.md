@@ -1,9 +1,8 @@
 # Faculty Scholarship Grant Management and Evaluation System (FSMES) PRD
 
-Version: 1.0  
+Version: 1.0
 Document Type: Product Requirements Document  
-Audience: Designers, frontend developers, backend developers, QA, capstone team  
-Product Stage: Internal prototype / MVP  
+Product Stage: Internal prototype / MVP
 Primary Platform: Responsive web application
 
 ## 1. Product Summary
@@ -66,6 +65,10 @@ Create a focused, reliable, and easy-to-use digital platform that helps faculty 
 - public scholarship discovery portal
 
 ## 6. Users and Roles
+FSMES has exactly two in-app system actors for this MVP:
+- Faculty Applicant
+- Panelist/Checker (Academic Scholarship Panel Member)
+
 ### 6.1 Faculty Applicant
 A faculty member who prepares, submits, updates, and monitors a scholarship application within the scoped workflow.
 
@@ -87,8 +90,8 @@ Primary needs:
 - record panel-level outcomes
 - maintain traceability of actions taken
 
-### 6.3 Roles Explicitly Not Implemented In-App
-The following are process stakeholders but are not primary in-app user roles in the scoped MVP:
+### 6.3 Process Stakeholders Outside System Actors
+The following are process stakeholders but are not system actors and do not authenticate as in-app roles in this scoped MVP:
 - OVCAA staff
 - Department Chairperson
 - College Dean
@@ -234,161 +237,11 @@ Note: `Recommended` is not equivalent to final APDP approval. It is only the pan
 ### Backend
 - Hono
 
-### Database and Authentication
-- Appwrite
-
 ### Recommended Technical Boundary
 - Appwrite Authentication manages user sign-in and identity.
-- Appwrite Database stores application, review, and workflow collections.
 - Appwrite Storage stores uploaded documents.
 - Hono exposes API endpoints and enforces business rules not safely handled in the client.
 - React renders role-specific pages and workflow interactions.
-
-## 15. Data Model
-### Core Entities
-- Users
-- User Profiles
-- Applications
-- Application Documents
-- Panel Reviews
-- Decision Records
-- Status History
-- Activity Logs
-
-### Entity Notes
-- `Users` represent authenticated accounts.
-- `User Profiles` store role-specific display and organizational data.
-- `Applications` store the main scholarship submission record.
-- `Application Documents` store uploaded supporting files and version metadata.
-- `Panel Reviews` store review notes and completeness findings.
-- `Decision Records` store final panel-side outcomes within the scoped stage.
-- `Status History` stores workflow transitions.
-- `Activity Logs` store key audit-friendly user actions.
-
-## 16. ERD
-```mermaid
-erDiagram
-    USERS ||--|| USER_PROFILES : has
-    USERS ||--o{ APPLICATIONS : submits
-    USERS ||--o{ PANEL_REVIEWS : writes
-    USERS ||--o{ DECISION_RECORDS : records
-    USERS ||--o{ STATUS_HISTORY : changes
-    USERS ||--o{ ACTIVITY_LOGS : performs
-
-    APPLICATIONS ||--o{ APPLICATION_DOCUMENTS : contains
-    APPLICATIONS ||--o{ PANEL_REVIEWS : receives
-    APPLICATIONS ||--o| DECISION_RECORDS : results_in
-    APPLICATIONS ||--o{ STATUS_HISTORY : tracks
-    APPLICATIONS ||--o{ ACTIVITY_LOGS : generates
-
-    USERS {
-      string user_id PK
-      string email
-      string role
-      string account_status
-      datetime created_at
-      datetime updated_at
-    }
-
-    USER_PROFILES {
-      string profile_id PK
-      string user_id FK
-      string full_name
-      string department
-      string college_or_office
-      string employee_no
-      string phone
-      datetime created_at
-      datetime updated_at
-    }
-
-    APPLICATIONS {
-      string application_id PK
-      string applicant_id FK
-      string reference_no
-      string academic_year
-      string semester
-      string scholarship_type
-      string proposed_program
-      string institution_name
-      text purpose_statement
-      string current_status
-      datetime created_at
-      datetime submitted_at
-      datetime updated_at
-    }
-
-    APPLICATION_DOCUMENTS {
-      string document_id PK
-      string application_id FK
-      string uploaded_by FK
-      string requirement_code
-      string requirement_name
-      string file_id
-      string file_name
-      string mime_type
-      number file_size
-      number version_no
-      boolean is_current
-      datetime uploaded_at
-    }
-
-    PANEL_REVIEWS {
-      string review_id PK
-      string application_id FK
-      string reviewer_id FK
-      string review_status
-      text review_notes
-      text missing_items
-      datetime reviewed_at
-      datetime updated_at
-    }
-
-    DECISION_RECORDS {
-      string decision_id PK
-      string application_id FK
-      string decided_by FK
-      string panel_outcome
-      text decision_notes
-      datetime decided_at
-    }
-
-    STATUS_HISTORY {
-      string status_history_id PK
-      string application_id FK
-      string changed_by FK
-      string from_status
-      string to_status
-      text reason
-      datetime changed_at
-    }
-
-    ACTIVITY_LOGS {
-      string activity_id PK
-      string application_id FK
-      string actor_id FK
-      string action_type
-      text action_summary
-      datetime created_at
-    }
-```
-
-## 17. API and Collection Planning Notes
-### Suggested Appwrite Collections
-- user_profiles
-- applications
-- application_documents
-- panel_reviews
-- decision_records
-- status_history
-- activity_logs
-
-### Suggested Backend Responsibilities for Hono
-- submission validation
-- status-transition validation
-- role and ownership enforcement
-- standardized decision recording
-- centralized audit logging hooks
 
 ## 18. UX Requirements for Designers
 - The UI must make current status visible without opening secondary screens.
@@ -418,6 +271,5 @@ Before implementation starts, the team should confirm:
 - final set of status values
 - final panel outcome values
 - final permissions mapping
-- exact Appwrite collection design
 - exact TanStack package selection
 - UI designs for all applicant and panel screens

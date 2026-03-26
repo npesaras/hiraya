@@ -13,6 +13,11 @@ Responsive internal web application for faculty scholarship application submissi
 - Faculty Applicant
 - Academic Scholarship Panel Member
 
+### System Actor Constraint
+FSMES supports exactly two in-app actors in the current scope:
+- Faculty Applicant
+- Panelist/Checker (Academic Scholarship Panel Member)
+
 ### Product Scope
 FSMES covers only the application submission and panel evaluation stages of the IASP workflow under the APDP context at MSU-IIT.
 
@@ -26,7 +31,7 @@ Do not generate screens or features for:
 - stipend, finance, or payroll modules
 - post-award compliance tracking
 - public scholarship marketplace pages
-- in-app admin CMS unless explicitly requested later
+- in-app admin CMS (not part of the current two-actor system scope)
 
 ## 4. Layout Rules
 ### Desktop Strategy
@@ -71,18 +76,6 @@ Do not generate screens or features for:
 - Revision requests must always show a clear reason, not just a status change.
 - Dangerous or final actions must use confirmation patterns.
 - The user should never lose orientation in the workflow.
-
-## 7. Core Entities Designers Must Understand
-- User
-- User Profile
-- Application
-- Application Document
-- Panel Review
-- Decision Record
-- Status History
-- Activity Log
-
-Designs should visually reinforce that the application is the central object, and everything else is attached to it.
 
 ## 8. Primary User Flows
 ### Applicant Flow
