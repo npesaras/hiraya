@@ -12,6 +12,7 @@ const props = withDefaults(defineProps<{
   loading?: boolean
   sending?: boolean
   connected?: boolean
+  showSummary?: boolean
 }>(), {
   hasApplication: false,
   applicationReference: null,
@@ -21,7 +22,8 @@ const props = withDefaults(defineProps<{
   draft: '',
   loading: false,
   sending: false,
-  connected: false
+  connected: false,
+  showSummary: true
 })
 
 const emit = defineEmits<{
@@ -39,6 +41,33 @@ const participantSummary = computed(() => props.participants
   .filter((participant) => !participant.isCurrentUser)
   .map((participant) => participant.displayName)
   .join(', '))
+
+function isCurrentUserMessage(message: ChatMessage) {
+  return Boolean(
+    message.authorUserId
+    && props.participants.find((participant) => participant.userId === message.authorUserId)?.isCurrentUser
+  )
+}
+
+function getMessageContainerClass(message: ChatMessage) {
+  if (message.kind === 'system') {
+    return 'flex justify-center'
+  }
+
+  return isCurrentUserMessage(message) ? 'flex justify-end' : 'flex justify-start'
+}
+
+function getMessageCardClass(message: ChatMessage) {
+  if (message.kind === 'system') {
+    return 'w-full max-w-2xl border-primary/20 bg-primary/5 text-center'
+  }
+
+  if (isCurrentUserMessage(message)) {
+    return 'w-full max-w-[85%] border-primary/25 bg-primary/10 sm:max-w-[78%]'
+  }
+
+  return 'w-full max-w-[85%] border-default bg-default sm:max-w-[78%]'
+}
 
 function formatTimestamp(dateLike?: string | null) {
   return formatShortDateTime(dateLike, 'Just now')
@@ -59,7 +88,16 @@ function onKeyboardSubmit(event: KeyboardEvent) {
     @mouseenter="emit('markRead')"
   >
     <div
-      v-if="!hasApplication"
+      v-if="loading && !hasApplication"
+      class="space-y-3"
+    >
+      <USkeleton class="h-24 rounded-[calc(var(--ui-radius)+0.25rem)]" />
+      <USkeleton class="h-24 rounded-[calc(var(--ui-radius)+0.25rem)]" />
+      <USkeleton class="h-24 rounded-[calc(var(--ui-radius)+0.25rem)]" />
+    </div>
+
+    <div
+      v-else-if="!hasApplication"
       class="flex h-full flex-col items-center justify-center rounded-[calc(var(--ui-radius)+0.25rem)] border border-dashed border-muted bg-muted/40 px-5 py-10 text-center sm:px-6"
     >
       <div class="space-y-3">
@@ -84,7 +122,10 @@ function onKeyboardSubmit(event: KeyboardEvent) {
     </div>
 
     <template v-else>
-      <div class="rounded-[calc(var(--ui-radius)+0.25rem)] border border-default bg-muted/50 p-3 sm:p-4">
+      <div
+        v-if="showSummary"
+        class="rounded-[calc(var(--ui-radius)+0.25rem)] border border-default bg-muted/50 p-3 sm:p-4"
+      >
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div class="space-y-1">
             <p class="font-reference text-[11px] uppercase tracking-[0.2em] text-dimmed">
@@ -105,7 +146,10 @@ function onKeyboardSubmit(event: KeyboardEvent) {
         </div>
       </div>
 
-      <div class="mt-4 min-h-0 flex-1 overflow-y-auto pr-1">
+      <div
+        class="min-h-0 flex-1 overflow-y-auto pr-1"
+        :class="showSummary ? 'mt-4' : ''"
+      >
         <div v-if="loading" class="space-y-3">
           <USkeleton class="h-20 rounded-[calc(var(--ui-radius)+0.25rem)]" />
           <USkeleton class="ml-auto h-20 w-4/5 rounded-[calc(var(--ui-radius)+0.25rem)]" />
@@ -122,35 +166,35 @@ function onKeyboardSubmit(event: KeyboardEvent) {
         </div>
 
         <div v-else class="space-y-3">
-          <article
+          <div
             v-for="message in messages"
             :key="message.id"
-            :class="[
-              'rounded-[calc(var(--ui-radius)+0.25rem)] border px-4 py-3 shadow-sm',
-              message.kind === 'system'
-                ? 'border-primary/20 bg-primary/5'
-                : message.authorUserId && participants.find((participant) => participant.userId === message.authorUserId)?.isCurrentUser
-                  ? 'ml-auto border-primary/30 bg-primary/10'
-                  : 'border-default bg-default'
-            ]"
+            :class="getMessageContainerClass(message)"
           >
-            <div class="flex items-center justify-between gap-3">
-              <p class="text-sm font-semibold text-highlighted">
-                {{ message.kind === 'system' ? 'FSMES Workflow' : message.authorName }}
-              </p>
-              <p class="font-reference text-[11px] uppercase tracking-[0.16em] text-dimmed">
-                {{ formatTimestamp(message.createdAt) }}
-              </p>
-            </div>
+            <article
+              :class="[
+                'rounded-[calc(var(--ui-radius)+0.35rem)] border px-4 py-3 shadow-sm',
+                getMessageCardClass(message)
+              ]"
+            >
+              <div class="flex items-center justify-between gap-3">
+                <p class="text-sm font-semibold text-highlighted">
+                  {{ message.kind === 'system' ? 'FSMES Workflow' : message.authorName }}
+                </p>
+                <p class="font-reference text-[11px] uppercase tracking-[0.16em] text-dimmed">
+                  {{ formatTimestamp(message.createdAt) }}
+                </p>
+              </div>
 
-            <p class="mt-2 whitespace-pre-wrap text-sm leading-6 text-default">
-              {{ message.body }}
-            </p>
-          </article>
+              <p class="mt-2 whitespace-pre-wrap text-sm leading-6 text-default">
+                {{ message.body }}
+              </p>
+            </article>
+          </div>
         </div>
       </div>
 
-      <div class="mt-4 rounded-[calc(var(--ui-radius)+0.25rem)] border border-default bg-default p-3 shadow-sm">
+      <div class="mt-4 shrink-0 rounded-[calc(var(--ui-radius)+0.25rem)] border border-default bg-default p-3 shadow-sm">
         <UTextarea
           v-model="draftModel"
           :rows="4"

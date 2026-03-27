@@ -4,6 +4,8 @@
 @theme static {
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --breakpoint-xs: 30rem;
+  --breakpoint-3xl: 112rem;
 
   --color-fsmes-50: #f0fdfa;
   --color-fsmes-100: #ccfbf1;
@@ -25,6 +27,7 @@
   --animate-soft-rise: soft-rise 260ms ease-out;
   --ui-radius: 0.75rem;
   --ui-container: 88rem;
+  --ui-header-height: 4.5rem;
 
   @keyframes fade-in {
     from {
@@ -53,6 +56,10 @@
 
 :root {
   color-scheme: light;
+  --faculty-page-max: 104rem;
+  --faculty-sidebar-width: clamp(18rem, 18vw, 20rem);
+  --faculty-sidebar-mobile-width: 21rem;
+  --faculty-card-shadow: 0 22px 48px rgb(15 23 42 / 0.08);
   --app-background:
     radial-gradient(circle at top left, rgb(20 184 166 / 0.12), transparent 32%),
     radial-gradient(circle at top right, rgb(14 165 233 / 0.08), transparent 28%),
@@ -121,4 +128,14 @@ body {
 
 .dashboard-section {
   animation: var(--animate-soft-rise);
+}
+
+.faculty-page-shell {
+  width: 100%;
+  max-width: var(--faculty-page-max);
+  margin-inline: auto;
+}
+
+.faculty-elevated-card {
+  box-shadow: var(--faculty-card-shadow);
 }

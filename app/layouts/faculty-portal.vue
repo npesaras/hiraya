@@ -36,12 +36,7 @@ const navItems: FacultyNavItem[] = [
     key: 'chat',
     label: 'Chat',
     description: 'Open your live application conversation',
-    to: {
-      path: '/faculty/dashboard',
-      query: {
-        panel: 'chat'
-      }
-    },
+    to: '/faculty/chat',
     icon: 'i-lucide-message-circle-more'
   }
 ]
@@ -89,11 +84,11 @@ onMounted(() => {
 
 function isActive(item: FacultyNavItem) {
   if (item.key === 'chat') {
-    return route.path === '/faculty/dashboard' && route.query.panel === 'chat'
+    return route.path.startsWith('/faculty/chat')
   }
 
   if (item.key === 'dashboard') {
-    return route.path === '/faculty/dashboard' && route.query.panel !== 'chat'
+    return route.path === '/faculty/dashboard'
   }
 
   return route.path === '/faculty/application/new' || route.path.startsWith('/faculty/application/')
@@ -115,22 +110,21 @@ async function handleSignOut() {
   <div class="min-h-screen bg-[var(--app-background)]">
     <UDashboardGroup
       storage="cookie"
-      storage-key="faculty-portal"
-      class="min-h-screen"
+      storage-key="faculty-portal-v2"
+      class="min-h-dvh"
     >
       <UDashboardSidebar
         id="faculty-sidebar"
-        resizable
         collapsible
-        :default-size="18"
-        :min-size="14"
-        :max-size="22"
         toggle-side="left"
         mode="drawer"
+        :style="{
+          '--width': 'var(--faculty-sidebar-width)'
+        }"
         :ui="{
-          root: 'w-[min(88vw,20rem)] border-r border-default bg-default/95 backdrop-blur-xl lg:w-auto',
-          body: 'px-3 py-4 sm:px-4',
-          footer: 'px-3 py-4 sm:px-4'
+          root: 'w-[min(88vw,var(--faculty-sidebar-mobile-width))] border-r border-default/80 bg-default/90 backdrop-blur-xl lg:w-(--width)',
+          body: 'px-3 py-4 sm:px-5',
+          footer: 'px-3 py-4 sm:px-5'
         }"
       >
         <template #header="{ collapsed }">
@@ -156,8 +150,8 @@ async function handleSignOut() {
         </template>
 
         <template #default="{ collapsed }">
-          <div class="flex h-full min-h-0 flex-col gap-6">
-            <div class="rounded-[calc(var(--ui-radius)+0.55rem)] border border-default bg-default/90 p-3 shadow-sm">
+          <div class="flex h-full min-h-0 flex-col gap-5">
+            <div class="rounded-[calc(var(--ui-radius)+0.65rem)] border border-default bg-default/92 p-3 shadow-[0_16px_34px_rgb(15_23_42_/_0.05)]">
               <div class="flex items-center gap-3">
                 <UAvatar
                   :text="sidebarInitials"
@@ -201,7 +195,7 @@ async function handleSignOut() {
                   class="faculty-sidebar-link justify-start rounded-[calc(var(--ui-radius)+0.35rem)]"
                   :class="isActive(item) ? 'faculty-sidebar-link-active' : 'faculty-sidebar-link-idle'"
                   :ui="{
-                    base: collapsed ? 'size-11 justify-center' : 'min-h-14 justify-start px-3 py-3'
+                    base: collapsed ? 'size-11 justify-center' : 'min-h-14 justify-start px-3.5 py-3.5'
                   }"
                 >
                   <span v-if="collapsed" class="sr-only">{{ item.label }}</span>
@@ -227,6 +221,38 @@ async function handleSignOut() {
             </div>
 
             <div class="mt-auto space-y-3">
+              <div
+                v-if="!collapsed"
+                class="rounded-[calc(var(--ui-radius)+0.65rem)] border border-primary/15 bg-[linear-gradient(145deg,rgba(20,184,166,0.12),rgba(255,255,255,0.92))] p-4 shadow-[0_16px_36px_rgb(20_184_166_/_0.08)]"
+              >
+                <p class="font-reference text-[11px] uppercase tracking-[0.2em] text-primary/80">
+                  Workflow Rhythm
+                </p>
+                <p class="mt-2 text-sm font-semibold text-highlighted">
+                  Keep your application, dashboard, and chat moving together.
+                </p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <UButton
+                    size="sm"
+                    color="primary"
+                    variant="soft"
+                    icon="i-lucide-file-pen-line"
+                    to="/faculty/application/new"
+                  >
+                    Application
+                  </UButton>
+                  <UButton
+                    size="sm"
+                    color="neutral"
+                    variant="soft"
+                    icon="i-lucide-message-circle-more"
+                    to="/faculty/chat"
+                  >
+                    Chat
+                  </UButton>
+                </div>
+              </div>
+
               <div v-if="!collapsed" class="rounded-[calc(var(--ui-radius)+0.55rem)] border border-default bg-muted/40 p-4">
                 <p class="font-reference text-[11px] uppercase tracking-[0.22em] text-dimmed">
                   Appearance

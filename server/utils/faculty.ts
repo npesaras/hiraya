@@ -432,6 +432,27 @@ export async function getLatestFacultyApplication(
   return (result.rows[0] as FacultyApplicationRow | undefined) ?? null
 }
 
+export async function listFacultyApplications(
+  tablesDB: TablesDB,
+  config: AdminConfig,
+  input: {
+    userId: string
+    limit?: number
+  }
+): Promise<FacultyApplicationRow[]> {
+  const result = await tablesDB.listRows({
+    databaseId: config.databaseId,
+    tableId: config.resources.tableIds.applications,
+    queries: [
+      Query.equal('applicant_id', input.userId),
+      Query.orderDesc('$createdAt'),
+      Query.limit(input.limit || 20)
+    ]
+  })
+
+  return result.rows as FacultyApplicationRow[]
+}
+
 export async function getFacultyApplicationById(
   tablesDB: TablesDB,
   config: AdminConfig,

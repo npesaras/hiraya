@@ -5,6 +5,7 @@ import {
   type ChatMessage,
   type ChatParticipantSummary,
   type ChatRealtimeDescriptor,
+  type ChatThreadListItem,
   type ChatThreadSummary
 } from '#shared/utils/chat'
 import type { AdminConfig } from '~~/server/utils/appwrite-admin'
@@ -61,6 +62,42 @@ function getReadPermissions(userIds: string[]) {
   return userIds.map((userId) => Permission.read(Role.user(userId)))
 }
 
+function buildInitials(source: string) {
+  return source
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join(' ')
+}
+
+function getCounterpartName(
+  participants: ApplicationThreadParticipantRow[],
+  currentUserId: string
+) {
+  return participants.find((participant) => {
+    return participant.participant_user_id !== currentUserId && participant.display_name?.trim()
+  })?.display_name?.trim() || 'FSMES Workflow'
+}
+
+function hasUnreadMessages(
+  thread: ApplicationThreadRow,
+  participants: ApplicationThreadParticipantRow[],
+  currentUserId: string
+) {
+  if (!thread.latest_message_at) {
+    return false
+  }
+
+  const currentUserParticipant = participants.find((participant) => participant.participant_user_id === currentUserId)
+
+  if (!currentUserParticipant?.last_read_at) {
+    return true
+  }
+
+  return new Date(thread.latest_message_at).getTime() > new Date(currentUserParticipant.last_read_at).getTime()
+}
+
 function toThreadSummary(row: ApplicationThreadRow): ChatThreadSummary {
   return {
     id: row.$id,
@@ -101,6 +138,28 @@ export function toMessageSummary(row: ApplicationMessageRow): ChatMessage {
     authorRole: row.author_role || null,
     authorName: row.author_name || 'FSMES Workflow',
     createdAt: row.created_at || null
+  }
+}
+
+export function toChatThreadListItem(input: {
+  application: FacultyApplicationRow
+  thread: ApplicationThreadRow
+  participants: ApplicationThreadParticipantRow[]
+  currentUserId: string
+}): ChatThreadListItem {
+  const counterpartName = getCounterpartName(input.participants, input.currentUserId)
+
+  return {
+    id: input.thread.$id,
+    applicationId: input.application.$id,
+    referenceNo: input.application.reference_no || null,
+    scholarshipType: input.application.scholarship_type || null,
+    statusSnapshot: input.thread.current_status_snapshot || input.application.current_status || null,
+    latestMessagePreview: input.thread.latest_message_preview || null,
+    latestMessageAt: input.thread.latest_message_at || null,
+    counterpartName,
+    counterpartInitials: buildInitials(counterpartName) || 'FW',
+    unread: hasUnreadMessages(input.thread, input.participants, input.currentUserId)
   }
 }
 

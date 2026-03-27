@@ -61,6 +61,18 @@ const overviewCards = computed(() => [
 ])
 
 const currentStepMeta = computed(() => stepItems.find((step) => step.value === currentStep.value) || stepItems[0])
+const chatRoute = computed(() => {
+  if (!application.value?.id) {
+    return '/faculty/chat'
+  }
+
+  return {
+    path: '/faculty/chat',
+    query: {
+      applicationId: application.value.id
+    }
+  }
+})
 
 const currentStepGuidance = computed(() => {
   if (currentStep.value === 1) {
@@ -118,7 +130,7 @@ function handleStepChange(value?: string | number) {
               color="neutral"
               variant="soft"
               icon="i-lucide-message-circle-more"
-              :to="{ path: '/faculty/dashboard', query: { panel: 'chat' } }"
+              :to="chatRoute"
               class="w-full justify-center sm:w-auto"
             >
               Open chat
@@ -129,7 +141,7 @@ function handleStepChange(value?: string | number) {
     </template>
 
     <template #body>
-      <section class="dashboard-section space-y-6">
+      <section class="dashboard-section faculty-page-shell space-y-6 xl:space-y-7">
         <UAlert
           v-if="loadError"
           color="error"
@@ -148,15 +160,15 @@ function handleStepChange(value?: string | number) {
           :description="formError"
         />
 
-        <UCard class="app-surface overflow-hidden">
-          <div class="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
+        <UCard class="app-surface faculty-elevated-card overflow-hidden border border-primary/10">
+          <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem] 2xl:grid-cols-[minmax(0,1.15fr)_22rem]">
             <div class="space-y-4">
               <div>
                 <p class="font-reference text-[12px] uppercase tracking-[0.2em] text-dimmed">
                   Faculty Application
                 </p>
                 <div class="mt-2 flex flex-wrap items-center gap-3">
-                  <h2 class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
+                  <h2 class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl 2xl:text-[2.5rem]">
                     Multi-step scholarship application
                   </h2>
                   <UBadge color="primary" variant="soft">
@@ -168,11 +180,11 @@ function handleStepChange(value?: string | number) {
                 </p>
               </div>
 
-              <div class="grid gap-3 md:grid-cols-3">
+              <div class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
                 <div
                   v-for="card in overviewCards"
                   :key="card.label"
-                  class="rounded-[calc(var(--ui-radius)+0.25rem)] border border-default bg-default/90 p-4 shadow-sm"
+                  class="rounded-[calc(var(--ui-radius)+0.35rem)] border border-default bg-default/92 p-4 shadow-[0_14px_34px_rgb(15_23_42_/_0.05)]"
                 >
                   <p class="font-reference text-[12px] uppercase tracking-[0.18em] text-dimmed">
                     {{ card.label }}
@@ -184,7 +196,7 @@ function handleStepChange(value?: string | number) {
               </div>
             </div>
 
-            <div class="rounded-[calc(var(--ui-radius)+0.5rem)] border border-default bg-default/90 p-5 shadow-sm">
+            <div class="rounded-[calc(var(--ui-radius)+0.65rem)] border border-default bg-default/92 p-5 shadow-[0_18px_40px_rgb(15_23_42_/_0.06)]">
               <p class="font-reference text-[12px] uppercase tracking-[0.18em] text-dimmed">
                 Applicant Snapshot
               </p>
@@ -222,7 +234,7 @@ function handleStepChange(value?: string | number) {
           description="The latest record is already in the workflow. You can review the submitted details here, but edits and uploads are disabled."
         />
 
-        <div class="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
+        <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem] 3xl:grid-cols-[minmax(0,1.12fr)_24rem]">
           <UCard class="overflow-hidden">
             <template #header>
               <div class="space-y-4">

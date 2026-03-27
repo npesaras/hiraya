@@ -37,6 +37,19 @@ export type ChatThreadSummary = {
   createdAt: string | null
 }
 
+export type ChatThreadListItem = {
+  id: string
+  applicationId: string
+  referenceNo: string | null
+  scholarshipType: string | null
+  statusSnapshot: string | null
+  latestMessagePreview: string | null
+  latestMessageAt: string | null
+  counterpartName: string
+  counterpartInitials: string
+  unread: boolean
+}
+
 export type ChatRealtimeDescriptor = {
   channels: string[]
   queries: string[]
