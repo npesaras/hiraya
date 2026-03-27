@@ -39,7 +39,12 @@
                 <UButton color="primary" icon="i-lucide-layout-dashboard" to="/faculty/dashboard">
                   Return to dashboard
                 </UButton>
-                <UButton color="neutral" variant="soft" icon="i-lucide-message-circle-more" to="/faculty/dashboard">
+                <UButton
+                  color="neutral"
+                  variant="soft"
+                  icon="i-lucide-message-circle-more"
+                  :to="{ path: '/faculty/dashboard', query: { panel: 'chat' } }"
+                >
                   Open application chat
                 </UButton>
               </div>

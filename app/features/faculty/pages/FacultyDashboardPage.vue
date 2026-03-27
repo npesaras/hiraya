@@ -2,6 +2,7 @@
 import FacultyConversationPanel from '~/features/faculty/components/FacultyConversationPanel.vue'
 import { useFacultyDashboard } from '~/features/faculty/composables/useFacultyDashboard'
 
+const route = useRoute()
 const { profile } = useAuth()
 const {
   latestApplication,
@@ -89,6 +90,18 @@ const nextStep = computed(() => {
 onMounted(load)
 onBeforeUnmount(disconnectRealtime)
 
+watch(() => route.query.panel, (panel) => {
+  if (panel === 'chat') {
+    chatOpen.value = true
+    void markChatRead()
+    return
+  }
+
+  chatOpen.value = false
+}, {
+  immediate: true
+})
+
 function formatActivity(action?: string) {
   if (!action) return 'Workflow event'
 
@@ -99,8 +112,34 @@ function formatActivity(action?: string) {
 }
 
 function openChat() {
+  void navigateTo({
+    path: '/faculty/dashboard',
+    query: {
+      ...route.query,
+      panel: 'chat'
+    }
+  }, {
+    replace: route.path === '/faculty/dashboard'
+  })
+
   chatOpen.value = true
   void markChatRead()
+}
+
+function closeChat() {
+  if (route.query.panel === 'chat') {
+    const nextQuery = { ...route.query }
+    delete nextQuery.panel
+
+    void navigateTo({
+      path: route.path,
+      query: nextQuery
+    }, {
+      replace: true
+    })
+  }
+
+  chatOpen.value = false
 }
 </script>
 
@@ -417,7 +456,11 @@ function openChat() {
       </template>
     </UDashboardPanel>
 
-    <USlideover v-model:open="chatOpen" title="Application chat">
+    <USlideover
+      v-model:open="chatOpen"
+      title="Application chat"
+      @update:open="(open) => { if (!open) closeChat() }"
+    >
       <template #body>
         <FacultyConversationPanel
           :has-application="hasApplication"
