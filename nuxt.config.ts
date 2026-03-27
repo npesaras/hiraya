@@ -19,16 +19,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       appwriteEndpoint: publicAppwriteConfig.endpoint,
-      appwriteProjectId: publicAppwriteConfig.projectId,
-      appwriteDatabaseId: publicAppwriteConfig.databaseId,
-      appwriteBucketId: publicAppwriteConfig.resources.bucketId,
-      appwriteUserProfilesTableId: publicAppwriteConfig.resources.tableIds.userProfiles,
-      appwriteApplicationsTableId: publicAppwriteConfig.resources.tableIds.applications,
-      appwriteApplicationDocumentsTableId: publicAppwriteConfig.resources.tableIds.applicationDocuments,
-      appwritePanelReviewsTableId: publicAppwriteConfig.resources.tableIds.panelReviews,
-      appwriteDecisionRecordsTableId: publicAppwriteConfig.resources.tableIds.decisionRecords,
-      appwriteStatusHistoryTableId: publicAppwriteConfig.resources.tableIds.statusHistory,
-      appwriteActivityLogsTableId: publicAppwriteConfig.resources.tableIds.activityLogs
+      appwriteProjectId: publicAppwriteConfig.projectId
     }
   },
   vite: {

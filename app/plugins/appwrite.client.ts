@@ -1,4 +1,4 @@
-import { Account, Client, ID, Query, Realtime, Storage, TablesDB } from 'appwrite'
+import { Account, Client, Realtime } from 'appwrite'
 
 export default defineNuxtPlugin(() => {
   const config = useRuntimeConfig()
@@ -15,21 +15,14 @@ export default defineNuxtPlugin(() => {
   }
 
   const account = new Account(client)
-  const tablesDB = new TablesDB(client)
-  const storage = new Storage(client)
   const realtime = new Realtime(client)
 
   return {
     provide: {
       appwrite: {
         configured,
-        client,
         account,
-        tablesDB,
-        storage,
-        realtime,
-        ID,
-        Query
+        realtime
       }
     }
   }

@@ -97,8 +97,14 @@ export const APPWRITE_TABLE_DEFINITIONS = Object.freeze([
       { key: 'scholarship_type', type: 'varchar', size: 128, required: true },
       { key: 'proposed_program', type: 'varchar', size: 255, required: false },
       { key: 'institution_name', type: 'varchar', size: 255, required: false },
+      { key: 'study_load', type: 'varchar', size: 64, required: false },
+      { key: 'contact_phone', type: 'varchar', size: 32, required: false },
       { key: 'purpose_statement', type: 'text', required: true },
+      { key: 'expected_outcomes', type: 'text', required: false },
+      { key: 'support_needs', type: 'text', required: false },
       { key: 'current_status', type: 'varchar', size: 64, required: true },
+      { key: 'draft_step', type: 'integer', required: true },
+      { key: 'last_saved_at', type: 'datetime', required: false },
       { key: 'submitted_at', type: 'datetime', required: false }
     ]
   },

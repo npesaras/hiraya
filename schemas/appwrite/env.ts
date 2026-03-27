@@ -14,16 +14,7 @@ type ServerEnvRequirement = {
 
 export const REQUIRED_PUBLIC_APPWRITE_ENV_KEYS = [
   'NUXT_PUBLIC_APPWRITE_ENDPOINT',
-  'NUXT_PUBLIC_APPWRITE_PROJECT_ID',
-  'NUXT_PUBLIC_APPWRITE_DATABASE_ID',
-  'NUXT_PUBLIC_APPWRITE_BUCKET_ID',
-  'NUXT_PUBLIC_APPWRITE_USER_PROFILES_TABLE_ID',
-  'NUXT_PUBLIC_APPWRITE_APPLICATIONS_TABLE_ID',
-  'NUXT_PUBLIC_APPWRITE_APPLICATION_DOCUMENTS_TABLE_ID',
-  'NUXT_PUBLIC_APPWRITE_PANEL_REVIEWS_TABLE_ID',
-  'NUXT_PUBLIC_APPWRITE_DECISION_RECORDS_TABLE_ID',
-  'NUXT_PUBLIC_APPWRITE_STATUS_HISTORY_TABLE_ID',
-  'NUXT_PUBLIC_APPWRITE_ACTIVITY_LOGS_TABLE_ID'
+  'NUXT_PUBLIC_APPWRITE_PROJECT_ID'
 ] as const
 
 export const REQUIRED_SERVER_APPWRITE_ENV_REQUIREMENTS = [
@@ -92,9 +83,7 @@ export function resolveAppwriteResourceIds(env: EnvMap) {
 export function resolvePublicAppwriteConfig(env: EnvMap) {
   return {
     endpoint: getTrimmedEnvValue('NUXT_PUBLIC_APPWRITE_ENDPOINT', env) || '',
-    projectId: getTrimmedEnvValue('NUXT_PUBLIC_APPWRITE_PROJECT_ID', env) || '',
-    databaseId: getTrimmedEnvValue('NUXT_PUBLIC_APPWRITE_DATABASE_ID', env) || '',
-    resources: resolveAppwriteResourceIds(env)
+    projectId: getTrimmedEnvValue('NUXT_PUBLIC_APPWRITE_PROJECT_ID', env) || ''
   }
 }
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ChatMessage, ChatParticipantSummary } from '#shared/utils/chat'
+import { formatShortDateTime } from '#shared/utils/formatting'
 
 const props = withDefaults(defineProps<{
   hasApplication?: boolean
@@ -40,22 +41,7 @@ const participantSummary = computed(() => props.participants
   .join(', '))
 
 function formatTimestamp(dateLike?: string | null) {
-  if (!dateLike) {
-    return 'Just now'
-  }
-
-  const parsed = new Date(dateLike)
-
-  if (Number.isNaN(parsed.getTime())) {
-    return 'Just now'
-  }
-
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit'
-  }).format(parsed)
+  return formatShortDateTime(dateLike, 'Just now')
 }
 
 function onKeyboardSubmit(event: KeyboardEvent) {
@@ -74,7 +60,7 @@ function onKeyboardSubmit(event: KeyboardEvent) {
   >
     <div
       v-if="!hasApplication"
-      class="flex h-full flex-col items-center justify-center rounded-[calc(var(--ui-radius)+0.25rem)] border border-dashed border-muted bg-muted/40 px-6 py-10 text-center"
+      class="flex h-full flex-col items-center justify-center rounded-[calc(var(--ui-radius)+0.25rem)] border border-dashed border-muted bg-muted/40 px-5 py-10 text-center sm:px-6"
     >
       <div class="space-y-3">
         <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -90,6 +76,7 @@ function onKeyboardSubmit(event: KeyboardEvent) {
           to="/faculty/application/new"
           icon="i-lucide-file-plus-2"
           color="primary"
+          class="w-full justify-center sm:w-auto"
         >
           Start application
         </UButton>
@@ -97,8 +84,8 @@ function onKeyboardSubmit(event: KeyboardEvent) {
     </div>
 
     <template v-else>
-      <div class="rounded-[calc(var(--ui-radius)+0.25rem)] border border-default bg-muted/50 p-4">
-        <div class="flex items-start justify-between gap-3">
+      <div class="rounded-[calc(var(--ui-radius)+0.25rem)] border border-default bg-muted/50 p-3 sm:p-4">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div class="space-y-1">
             <p class="font-reference text-[11px] uppercase tracking-[0.2em] text-dimmed">
               Application Thread
@@ -172,8 +159,8 @@ function onKeyboardSubmit(event: KeyboardEvent) {
           @keydown="onKeyboardSubmit"
         />
 
-        <div class="mt-3 flex items-center justify-between gap-3">
-          <p class="text-xs text-dimmed">
+        <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p class="max-w-sm text-xs text-dimmed">
             Messages are stored in your backend and sync live through Appwrite Realtime.
           </p>
 
@@ -182,6 +169,7 @@ function onKeyboardSubmit(event: KeyboardEvent) {
             icon="i-lucide-send"
             :loading="sending"
             :disabled="!draft.trim()"
+            class="w-full justify-center sm:w-auto"
             @click="emit('send')"
           >
             Send

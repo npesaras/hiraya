@@ -17,8 +17,15 @@ const props = withDefaults(defineProps<{
 const route = useRoute()
 const { profile, signOut } = useAuth()
 const signingOut = ref(false)
+const hasMounted = ref(false)
 
-const displayName = computed(() => profile.value?.full_name || props.roleLabel)
+const displayName = computed(() => hasMounted.value
+  ? (profile.value?.full_name || props.roleLabel)
+  : props.roleLabel)
+
+onMounted(() => {
+  hasMounted.value = true
+})
 
 function isActive(to: string) {
   return route.path === to || route.path.startsWith(`${to}/`)

@@ -1,14 +1,9 @@
-import type { Account, Client, ID, Query, Realtime, Storage, TablesDB } from 'appwrite'
+import type { Account, Realtime } from 'appwrite'
 
 export type AppwritePlugin = {
   configured: boolean
-  client: Client
   account: Account
-  tablesDB: TablesDB
-  storage: Storage
   realtime: Realtime
-  ID: typeof ID
-  Query: typeof Query
 }
 
 declare module '#app' {

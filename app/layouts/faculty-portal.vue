@@ -4,6 +4,7 @@ const colorMode = useColorMode()
 const { profile, signOut } = useAuth()
 
 const signingOut = ref(false)
+const hasMounted = ref(false)
 
 type FacultyNavItem = {
   key: 'dashboard' | 'application' | 'chat'
@@ -45,14 +46,46 @@ const navItems: FacultyNavItem[] = [
   }
 ]
 
-const profileInitials = computed(() => (profile.value?.full_name || 'Faculty')
-  .split(' ')
-  .filter(Boolean)
-  .slice(0, 2)
-  .map((part) => part.charAt(0).toUpperCase())
-  .join(' '))
+const sidebarDisplayName = computed(() => hasMounted.value
+  ? (profile.value?.full_name || 'Faculty account')
+  : 'Faculty account')
 
-const currentThemeLabel = computed(() => colorMode.value === 'dark' ? 'Dark mode ready' : 'Light mode active')
+const sidebarDepartment = computed(() => hasMounted.value
+  ? (profile.value?.department || 'Faculty applicant')
+  : 'Faculty applicant')
+
+const sidebarInitials = computed(() => {
+  const source = hasMounted.value
+    ? (profile.value?.full_name || 'Faculty')
+    : 'Faculty'
+
+  return source
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join(' ')
+})
+
+const currentThemeLabel = computed(() => {
+  if (!hasMounted.value) {
+    return 'Theme preferences'
+  }
+
+  return colorMode.value === 'dark' ? 'Dark mode ready' : 'Light mode active'
+})
+
+const currentThemeDescription = computed(() => {
+  if (!hasMounted.value) {
+    return 'Preparing appearance controls for this session.'
+  }
+
+  return 'Toggle is ready while we stay light-first.'
+})
+
+onMounted(() => {
+  hasMounted.value = true
+})
 
 function isActive(item: FacultyNavItem) {
   if (item.key === 'chat') {
@@ -81,7 +114,7 @@ async function handleSignOut() {
 <template>
   <div class="min-h-screen bg-[var(--app-background)]">
     <UDashboardGroup
-      storage="local"
+      storage="cookie"
       storage-key="faculty-portal"
       class="min-h-screen"
     >
@@ -95,9 +128,9 @@ async function handleSignOut() {
         toggle-side="left"
         mode="drawer"
         :ui="{
-          root: 'border-r border-default bg-default/95 backdrop-blur-xl',
-          body: 'px-4 py-4',
-          footer: 'px-4 py-4'
+          root: 'w-[min(88vw,20rem)] border-r border-default bg-default/95 backdrop-blur-xl lg:w-auto',
+          body: 'px-3 py-4 sm:px-4',
+          footer: 'px-3 py-4 sm:px-4'
         }"
       >
         <template #header="{ collapsed }">
@@ -127,17 +160,17 @@ async function handleSignOut() {
             <div class="rounded-[calc(var(--ui-radius)+0.55rem)] border border-default bg-default/90 p-3 shadow-sm">
               <div class="flex items-center gap-3">
                 <UAvatar
-                  :text="profileInitials"
+                  :text="sidebarInitials"
                   color="primary"
                   size="lg"
                 />
 
                 <div v-if="!collapsed" class="min-w-0">
                   <p class="truncate text-sm font-semibold text-highlighted">
-                    {{ profile?.full_name || 'Faculty account' }}
+                    {{ sidebarDisplayName }}
                   </p>
                   <p class="truncate text-xs text-muted">
-                    {{ profile?.department || 'Faculty applicant' }}
+                    {{ sidebarDepartment }}
                   </p>
                   <div class="mt-2">
                     <UBadge color="primary" variant="subtle">
@@ -204,7 +237,7 @@ async function handleSignOut() {
                       {{ currentThemeLabel }}
                     </p>
                     <p class="text-xs text-muted">
-                      Toggle is ready while we stay light-first.
+                      {{ currentThemeDescription }}
                     </p>
                   </div>
                   <AppColorModeToggle />

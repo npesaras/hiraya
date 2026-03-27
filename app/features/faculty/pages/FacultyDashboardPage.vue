@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatMonthDay, formatShortDate } from '#shared/utils/formatting'
 import FacultyConversationPanel from '~/features/faculty/components/FacultyConversationPanel.vue'
 import { useFacultyDashboard } from '~/features/faculty/composables/useFacultyDashboard'
 
@@ -26,6 +27,26 @@ const {
 } = useFacultyDashboard()
 
 const chatOpen = ref(false)
+const hasMounted = ref(false)
+
+const profileDisplayName = computed(() => hasMounted.value
+  ? (profile.value?.full_name || 'Faculty')
+  : 'Faculty')
+
+const overviewCards = computed(() => [
+  {
+    label: 'Reference',
+    value: latestApplication.value?.reference_no || 'Not generated yet'
+  },
+  {
+    label: 'Scholarship',
+    value: latestApplication.value?.scholarship_type || 'Draft package'
+  },
+  {
+    label: 'Submitted',
+    value: formatShortDate(latestApplication.value?.submitted_at, 'Awaiting submission')
+  }
+])
 
 const statusColor = computed(() => {
   const status = latestApplication.value?.current_status
@@ -38,17 +59,6 @@ const statusColor = computed(() => {
 
 const statusLabel = computed(() => latestApplication.value?.current_status || 'Draft (No submission yet)')
 const hasReturnedCase = computed(() => latestApplication.value?.current_status === 'Returned for Revision')
-const submittedAtLabel = computed(() => {
-  if (!latestApplication.value?.submitted_at) {
-    return 'Awaiting submission'
-  }
-
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  }).format(new Date(latestApplication.value.submitted_at))
-})
 
 const nextStep = computed(() => {
   const status = latestApplication.value?.current_status
@@ -87,7 +97,10 @@ const nextStep = computed(() => {
   }
 })
 
-onMounted(load)
+onMounted(() => {
+  hasMounted.value = true
+  void load()
+})
 onBeforeUnmount(disconnectRealtime)
 
 watch(() => route.query.panel, (panel) => {
@@ -109,6 +122,10 @@ function formatActivity(action?: string) {
     .split('_')
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ')
+}
+
+function formatActivityDate(dateLike?: string | null) {
+  return formatMonthDay(dateLike, 'Now')
 }
 
 function openChat() {
@@ -152,9 +169,9 @@ function closeChat() {
           icon="i-lucide-layout-dashboard"
         >
           <template #right>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center justify-end gap-2">
               <UButton
-                class="xl:hidden"
+                class="w-full justify-center sm:w-auto xl:hidden"
                 color="neutral"
                 variant="soft"
                 icon="i-lucide-message-circle-more"
@@ -167,6 +184,7 @@ function closeChat() {
                 variant="ghost"
                 icon="i-lucide-refresh-ccw"
                 :loading="loading"
+                class="w-full justify-center sm:w-auto"
                 @click="load"
               >
                 Refresh
@@ -174,6 +192,7 @@ function closeChat() {
               <UButton
                 color="primary"
                 icon="i-lucide-file-plus-2"
+                class="w-full justify-center sm:w-auto"
                 to="/faculty/application/new"
               >
                 Application
@@ -200,10 +219,10 @@ function closeChat() {
                 <div class="space-y-2">
                   <p class="text-sm text-muted">
                     Logged in as
-                    <span class="font-semibold text-highlighted">{{ profile?.full_name || 'Faculty' }}</span>
+                    <span class="font-semibold text-highlighted">{{ profileDisplayName }}</span>
                   </p>
                   <div class="flex flex-wrap items-center gap-3">
-                    <h2 class="text-3xl font-semibold tracking-tight text-highlighted">
+                    <h2 class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
                       Scholarship workflow at a glance
                     </h2>
                     <UBadge :color="statusColor" variant="soft">
@@ -215,29 +234,17 @@ function closeChat() {
                   </p>
                 </div>
 
-                <div class="grid gap-3 sm:grid-cols-3">
-                  <div class="rounded-[calc(var(--ui-radius)+0.25rem)] border border-default bg-default/90 p-4 shadow-sm">
+                <div class="grid gap-3 md:grid-cols-3">
+                  <div
+                    v-for="card in overviewCards"
+                    :key="card.label"
+                    class="rounded-[calc(var(--ui-radius)+0.25rem)] border border-default bg-default/90 p-4 shadow-sm"
+                  >
                     <p class="font-reference text-[11px] uppercase tracking-[0.2em] text-dimmed">
-                      Reference
+                      {{ card.label }}
                     </p>
                     <p class="mt-2 text-base font-semibold text-highlighted">
-                      {{ latestApplication?.reference_no || 'Not generated yet' }}
-                    </p>
-                  </div>
-                  <div class="rounded-[calc(var(--ui-radius)+0.25rem)] border border-default bg-default/90 p-4 shadow-sm">
-                    <p class="font-reference text-[11px] uppercase tracking-[0.2em] text-dimmed">
-                      Scholarship
-                    </p>
-                    <p class="mt-2 text-base font-semibold text-highlighted">
-                      {{ latestApplication?.scholarship_type || 'Draft package' }}
-                    </p>
-                  </div>
-                  <div class="rounded-[calc(var(--ui-radius)+0.25rem)] border border-default bg-default/90 p-4 shadow-sm">
-                    <p class="font-reference text-[11px] uppercase tracking-[0.2em] text-dimmed">
-                      Submitted
-                    </p>
-                    <p class="mt-2 text-base font-semibold text-highlighted">
-                      {{ submittedAtLabel }}
+                      {{ card.value }}
                     </p>
                   </div>
                 </div>
@@ -273,10 +280,11 @@ function closeChat() {
                   </p>
                 </div>
 
-                <div class="flex flex-wrap gap-2">
+                <div class="flex flex-col gap-2 sm:flex-row">
                   <UButton
                     color="primary"
                     icon="i-lucide-arrow-up-right"
+                    class="w-full justify-center sm:w-auto"
                     to="/faculty/application/new"
                   >
                     Continue workflow
@@ -285,6 +293,7 @@ function closeChat() {
                     color="neutral"
                     variant="soft"
                     icon="i-lucide-message-circle-more"
+                    class="w-full justify-center sm:w-auto"
                     @click="openChat"
                   >
                     Open chat
@@ -354,7 +363,7 @@ function closeChat() {
                   <p class="mt-1 text-sm text-muted">
                     Update draft details, finish uploads, and prepare the next submission.
                   </p>
-                  <UButton class="mt-3" color="primary" variant="soft" to="/faculty/application/new">
+                  <UButton class="mt-3 w-full justify-center sm:w-auto" color="primary" variant="soft" to="/faculty/application/new">
                     Go to application
                   </UButton>
                 </div>
@@ -366,7 +375,7 @@ function closeChat() {
                   <p class="mt-1 text-sm text-muted">
                     Use the activity feed and conversation panel to catch reviewer updates early.
                   </p>
-                  <UButton class="mt-3" color="neutral" variant="soft" @click="openChat">
+                  <UButton class="mt-3 w-full justify-center sm:w-auto" color="neutral" variant="soft" @click="openChat">
                     Open conversation
                   </UButton>
                 </div>
@@ -406,7 +415,7 @@ function closeChat() {
                     {{ formatActivity(activity.action_type) }}
                   </p>
                   <p class="font-reference text-[11px] uppercase tracking-[0.18em] text-dimmed">
-                    {{ activity.created_at ? new Date(activity.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Now' }}
+                    {{ formatActivityDate(activity.created_at) }}
                   </p>
                 </div>
                 <p class="mt-2 text-sm text-muted">
@@ -459,23 +468,29 @@ function closeChat() {
     <USlideover
       v-model:open="chatOpen"
       title="Application chat"
+      :ui="{
+        content: 'sm:max-w-xl',
+        body: 'p-4 sm:p-5'
+      }"
       @update:open="(open) => { if (!open) closeChat() }"
     >
       <template #body>
-        <FacultyConversationPanel
-          :has-application="hasApplication"
-          :application-reference="latestApplication?.reference_no || null"
-          :application-status="latestApplication?.current_status || null"
-          :participants="participants"
-          :messages="messages"
-          :draft="messageDraft"
-          :loading="loading"
-          :sending="sendingMessage"
-          :connected="realtimeConnected"
-          @update:draft="messageDraft = $event"
-          @send="sendMessage"
-          @mark-read="markChatRead"
-        />
+        <div class="h-[calc(100vh-8rem)] min-h-0">
+          <FacultyConversationPanel
+            :has-application="hasApplication"
+            :application-reference="latestApplication?.reference_no || null"
+            :application-status="latestApplication?.current_status || null"
+            :participants="participants"
+            :messages="messages"
+            :draft="messageDraft"
+            :loading="loading"
+            :sending="sendingMessage"
+            :connected="realtimeConnected"
+            @update:draft="messageDraft = $event"
+            @send="sendMessage"
+            @mark-read="markChatRead"
+          />
+        </div>
       </template>
     </USlideover>
   </div>

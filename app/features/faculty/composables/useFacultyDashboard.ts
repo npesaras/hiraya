@@ -6,6 +6,8 @@ import {
   type ChatRealtimeDescriptor,
   type ChatThreadSummary
 } from '#shared/utils/chat'
+import { FACULTY_REQUIRED_DOCUMENTS } from '#shared/utils/faculty-application'
+import { formatShortDateOrNull } from '#shared/utils/formatting'
 
 type ApplicationRow = {
   $id: string
@@ -39,11 +41,6 @@ type LatestChatResponse = {
   realtime: ChatRealtimeDescriptor | null
 }
 
-type LatestMessagesResponse = {
-  ok: boolean
-  messages: ChatMessage[]
-}
-
 type SendMessageResponse = {
   ok: boolean
   message: ChatMessage
@@ -56,35 +53,8 @@ export type DocumentChecklistItem = {
   uploadedAt: string | null
 }
 
-const REQUIRED_DOCUMENTS: Array<{ code: string, label: string }> = [
-  { code: 'application_letter', label: 'Application Letter' },
-  { code: 'curriculum_vitae', label: 'Curriculum Vitae' },
-  { code: 'service_record', label: 'Service Record' },
-  { code: 'transcript_records', label: 'Transcript of Records' },
-  { code: 'study_plan', label: 'Study Plan / Purpose Statement' },
-  { code: 'endorsement_form', label: 'IASP Endorsement Form' }
-]
-
-function formatDate(dateLike?: string): string | null {
-  if (!dateLike) {
-    return null
-  }
-
-  const date = new Date(dateLike)
-
-  if (Number.isNaN(date.getTime())) {
-    return null
-  }
-
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  }).format(date)
-}
-
 function createEmptyChecklist() {
-  return REQUIRED_DOCUMENTS.map((item) => ({
+  return FACULTY_REQUIRED_DOCUMENTS.map((item) => ({
     code: item.code,
     label: item.label,
     uploaded: false,
@@ -140,6 +110,17 @@ export function useFacultyDashboard() {
   const error = ref<string | null>(null)
   let realtimeSubscription: RealtimeSubscription | null = null
 
+  function resetDashboardState() {
+    latestApplication.value = null
+    activities.value = []
+    checklist.value = createEmptyChecklist()
+    thread.value = null
+    participants.value = []
+    messages.value = []
+    messageDraft.value = ''
+    chatRealtime.value = null
+  }
+
   async function fetchChatBootstrap(): Promise<LatestChatResponse> {
     return await $fetch<LatestChatResponse>('/api/faculty/applications/latest/chat', {
       headers: await getRestAuthHeaders()
@@ -161,14 +142,14 @@ export function useFacultyDashboard() {
 
     const currentDocuments = result.documents.filter((document) => document.is_current)
 
-    return REQUIRED_DOCUMENTS.map((requirement) => {
+    return FACULTY_REQUIRED_DOCUMENTS.map((requirement) => {
       const found = currentDocuments.find((document) => document.requirement_code === requirement.code)
 
       return {
         code: requirement.code,
         label: requirement.label,
         uploaded: Boolean(found),
-        uploadedAt: formatDate(found?.uploaded_at)
+        uploadedAt: formatShortDateOrNull(found?.uploaded_at)
       }
     })
   }
@@ -235,19 +216,6 @@ export function useFacultyDashboard() {
     }
   }
 
-  async function refreshMessages() {
-    if (!latestApplication.value) {
-      messages.value = []
-      return
-    }
-
-    const result = await $fetch<LatestMessagesResponse>(`/api/faculty/applications/${latestApplication.value.$id}/chat/messages`, {
-      headers: await getRestAuthHeaders()
-    })
-
-    messages.value = result.messages
-  }
-
   async function markChatRead() {
     if (!latestApplication.value || !thread.value) {
       return
@@ -304,14 +272,7 @@ export function useFacultyDashboard() {
       const activeUser = user.value || await ensureSession()
 
       if (!activeUser) {
-        latestApplication.value = null
-        activities.value = []
-        checklist.value = createEmptyChecklist()
-        thread.value = null
-        participants.value = []
-        messages.value = []
-        messageDraft.value = ''
-        chatRealtime.value = null
+        resetDashboardState()
         await disconnectRealtime()
         return
       }
@@ -356,7 +317,6 @@ export function useFacultyDashboard() {
     latestApplication: readonly(latestApplication),
     activities: readonly(activities),
     checklist: readonly(checklist),
-    thread: readonly(thread),
     participants: readonly(participants),
     messages: readonly(messages),
     messageDraft,
@@ -369,7 +329,6 @@ export function useFacultyDashboard() {
     missingCount,
     completionPercent,
     load,
-    refreshMessages,
     sendMessage,
     markChatRead,
     disconnectRealtime
