@@ -7,7 +7,15 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   modules: ['@nuxt/ui'],
+  ui: {
+    fonts: false
+  },
   css: ['~/assets/css/main.css'],
+  colorMode: {
+    preference: 'light',
+    fallback: 'light',
+    classSuffix: ''
+  },
   runtimeConfig: {
     public: {
       appwriteEndpoint: publicAppwriteConfig.endpoint,

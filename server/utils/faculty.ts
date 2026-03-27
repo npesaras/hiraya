@@ -138,6 +138,30 @@ export async function getLatestFacultyApplication(
   return (result.rows[0] as FacultyApplicationRow | undefined) ?? null
 }
 
+export async function getFacultyApplicationById(
+  tablesDB: TablesDB,
+  config: AdminConfig,
+  input: {
+    applicationId: string
+    userId: string
+  }
+): Promise<FacultyApplicationRow> {
+  const application = await tablesDB.getRow({
+    databaseId: config.databaseId,
+    tableId: config.resources.tableIds.applications,
+    rowId: input.applicationId
+  }) as FacultyApplicationRow
+
+  if (application.applicant_id !== input.userId) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'You do not have access to this application.'
+    })
+  }
+
+  return application
+}
+
 export async function getFacultyActivityLogs(
   tablesDB: TablesDB,
   config: AdminConfig,
@@ -164,18 +188,7 @@ export async function getFacultyApplicationDocuments(
     userId: string
   }
 ): Promise<ApplicationDocumentRow[]> {
-  const application = await tablesDB.getRow({
-    databaseId: config.databaseId,
-    tableId: config.resources.tableIds.applications,
-    rowId: input.applicationId
-  }) as FacultyApplicationRow
-
-  if (application.applicant_id !== input.userId) {
-    throw createError({
-      statusCode: 403,
-      statusMessage: 'You do not have access to this application.'
-    })
-  }
+  await getFacultyApplicationById(tablesDB, config, input)
 
   const result = await tablesDB.listRows({
     databaseId: config.databaseId,

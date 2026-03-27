@@ -14,7 +14,10 @@ export const APPWRITE_DEFAULT_TABLE_IDS = {
   panelReviews: 'panel_reviews',
   decisionRecords: 'decision_records',
   statusHistory: 'status_history',
-  activityLogs: 'activity_logs'
+  activityLogs: 'activity_logs',
+  applicationThreads: 'application_threads',
+  applicationThreadParticipants: 'application_thread_participants',
+  applicationMessages: 'application_messages'
 } as const
 
 export type AppwriteTableKey = keyof typeof APPWRITE_DEFAULT_TABLE_IDS
@@ -34,7 +37,10 @@ export const APPWRITE_TABLE_ID_ENV_KEYS = {
   panelReviews: 'NUXT_PUBLIC_APPWRITE_PANEL_REVIEWS_TABLE_ID',
   decisionRecords: 'NUXT_PUBLIC_APPWRITE_DECISION_RECORDS_TABLE_ID',
   statusHistory: 'NUXT_PUBLIC_APPWRITE_STATUS_HISTORY_TABLE_ID',
-  activityLogs: 'NUXT_PUBLIC_APPWRITE_ACTIVITY_LOGS_TABLE_ID'
+  activityLogs: 'NUXT_PUBLIC_APPWRITE_ACTIVITY_LOGS_TABLE_ID',
+  applicationThreads: 'APPWRITE_APPLICATION_THREADS_TABLE_ID',
+  applicationThreadParticipants: 'APPWRITE_APPLICATION_THREAD_PARTICIPANTS_TABLE_ID',
+  applicationMessages: 'APPWRITE_APPLICATION_MESSAGES_TABLE_ID'
 } as const
 
 export const APPWRITE_TABLES: AppwriteTableDefinition[] = [
@@ -141,6 +147,52 @@ export const APPWRITE_TABLES: AppwriteTableDefinition[] = [
       { key: 'actor_id', type: 'varchar', size: 64, required: true },
       { key: 'action_type', type: 'varchar', size: 64, required: true },
       { key: 'action_summary', type: 'text', required: false },
+      { key: 'created_at', type: 'datetime', required: true }
+    ]
+  },
+  {
+    key: 'applicationThreads',
+    envKey: APPWRITE_TABLE_ID_ENV_KEYS.applicationThreads,
+    defaultId: APPWRITE_DEFAULT_TABLE_IDS.applicationThreads,
+    name: 'Application Threads',
+    columns: [
+      { key: 'application_id', type: 'varchar', size: 64, required: true },
+      { key: 'reference_no', type: 'varchar', size: 64, required: false },
+      { key: 'current_status_snapshot', type: 'varchar', size: 64, required: false },
+      { key: 'latest_message_preview', type: 'text', required: false },
+      { key: 'latest_message_at', type: 'datetime', required: false },
+      { key: 'created_by', type: 'varchar', size: 64, required: true },
+      { key: 'created_at', type: 'datetime', required: true }
+    ]
+  },
+  {
+    key: 'applicationThreadParticipants',
+    envKey: APPWRITE_TABLE_ID_ENV_KEYS.applicationThreadParticipants,
+    defaultId: APPWRITE_DEFAULT_TABLE_IDS.applicationThreadParticipants,
+    name: 'Application Thread Participants',
+    columns: [
+      { key: 'thread_id', type: 'varchar', size: 64, required: true },
+      { key: 'application_id', type: 'varchar', size: 64, required: true },
+      { key: 'participant_user_id', type: 'varchar', size: 64, required: false },
+      { key: 'participant_role', type: 'varchar', size: 64, required: true },
+      { key: 'display_name', type: 'varchar', size: 255, required: true },
+      { key: 'last_read_at', type: 'datetime', required: false },
+      { key: 'joined_at', type: 'datetime', required: true }
+    ]
+  },
+  {
+    key: 'applicationMessages',
+    envKey: APPWRITE_TABLE_ID_ENV_KEYS.applicationMessages,
+    defaultId: APPWRITE_DEFAULT_TABLE_IDS.applicationMessages,
+    name: 'Application Messages',
+    columns: [
+      { key: 'thread_id', type: 'varchar', size: 64, required: true },
+      { key: 'application_id', type: 'varchar', size: 64, required: true },
+      { key: 'message_kind', type: 'varchar', size: 32, required: true },
+      { key: 'author_user_id', type: 'varchar', size: 64, required: false },
+      { key: 'author_role', type: 'varchar', size: 64, required: false },
+      { key: 'author_name', type: 'varchar', size: 255, required: true },
+      { key: 'body', type: 'text', required: true },
       { key: 'created_at', type: 'datetime', required: true }
     ]
   }

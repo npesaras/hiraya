@@ -1,19 +1,30 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
-@theme {
-  --color-fsmes-50: oklch(0.97 0.03 165);
-  --color-fsmes-100: oklch(0.93 0.05 165);
-  --color-fsmes-500: oklch(0.62 0.15 165);
-  --color-fsmes-700: oklch(0.48 0.11 165);
-  --color-fsmes-900: oklch(0.29 0.05 165);
+@theme static {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
-  --radius-sm: 0.35rem;
-  --radius-md: 0.55rem;
-  --radius-lg: 0.85rem;
-  --radius-xl: 1.05rem;
+  --color-fsmes-50: #f0fdfa;
+  --color-fsmes-100: #ccfbf1;
+  --color-fsmes-200: #99f6e4;
+  --color-fsmes-300: #5eead4;
+  --color-fsmes-400: #2dd4bf;
+  --color-fsmes-500: #14b8a6;
+  --color-fsmes-600: #0f766e;
+  --color-fsmes-700: #115e59;
+  --color-fsmes-800: #134e4a;
+  --color-fsmes-900: #042f2e;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
 
   --animate-fade-in: fade-in 220ms ease-out;
+  --animate-soft-rise: soft-rise 260ms ease-out;
+  --ui-radius: 0.75rem;
+  --ui-container: 88rem;
 
   @keyframes fade-in {
     from {
@@ -26,17 +37,88 @@
       transform: translateY(0);
     }
   }
+
+  @keyframes soft-rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 :root {
+  color-scheme: light;
   --app-background:
-    radial-gradient(circle at 10% 0%, rgb(16 185 129 / 0.18), transparent 42%),
-    radial-gradient(circle at 88% 16%, rgb(20 184 166 / 0.16), transparent 44%),
-    linear-gradient(180deg, rgb(248 250 252) 0%, rgb(241 245 249) 100%);
+    radial-gradient(circle at top left, rgb(20 184 166 / 0.12), transparent 32%),
+    radial-gradient(circle at top right, rgb(14 165 233 / 0.08), transparent 28%),
+    linear-gradient(180deg, rgb(248 250 252) 0%, rgb(241 245 249) 46%, rgb(248 250 252) 100%);
+  --app-panel-glow: linear-gradient(135deg, rgb(20 184 166 / 0.12), rgb(14 165 233 / 0.04));
+  --ui-bg: #f8fafc;
+  --ui-bg-muted: #f1f5f9;
+  --ui-bg-elevated: #ffffff;
+  --ui-bg-accented: #e2e8f0;
+  --ui-text: #0f172a;
+  --ui-text-highlighted: #0f172a;
+  --ui-text-muted: #334155;
+  --ui-text-dimmed: #64748b;
+  --ui-border: #e2e8f0;
+  --ui-border-muted: #cbd5e1;
+  --ui-border-accented: #94a3b8;
+}
+
+.dark {
+  color-scheme: dark;
+  --app-background:
+    radial-gradient(circle at top left, rgb(20 184 166 / 0.18), transparent 28%),
+    radial-gradient(circle at top right, rgb(15 23 42 / 0.8), transparent 40%),
+    linear-gradient(180deg, rgb(2 8 23) 0%, rgb(15 23 42) 100%);
+  --app-panel-glow: linear-gradient(135deg, rgb(20 184 166 / 0.16), rgb(51 65 85 / 0.16));
+  --ui-bg: #020617;
+  --ui-bg-muted: #0f172a;
+  --ui-bg-elevated: #111827;
+  --ui-bg-accented: #1e293b;
+  --ui-text: #e2e8f0;
+  --ui-text-highlighted: #f8fafc;
+  --ui-text-muted: #cbd5e1;
+  --ui-text-dimmed: #94a3b8;
+  --ui-border: #1e293b;
+  --ui-border-muted: #334155;
+  --ui-border-accented: #475569;
+}
+
+html,
+body,
+#__nuxt {
+  min-height: 100vh;
+}
+
+html {
+  font-family: var(--font-sans);
 }
 
 body {
-  min-height: 100vh;
   background: var(--app-background);
-  color: rgb(15 23 42);
+  color: var(--ui-text);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: rgb(20 184 166 / 0.18);
+}
+
+.font-reference {
+  font-family: var(--font-mono);
+}
+
+.app-surface {
+  background-image: var(--app-panel-glow);
+}
+
+.dashboard-section {
+  animation: var(--animate-soft-rise);
 }
