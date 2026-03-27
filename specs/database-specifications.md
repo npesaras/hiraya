@@ -223,3 +223,13 @@ Before implementation starts, confirm:
 ## 13. MCP Scope Notes
 - Appwrite MCP calls still depend on project/service scopes even when APIs are enabled.
 - If an endpoint returns scope errors (for example: missing `public` scope), update MCP credentials/role scopes in Appwrite before retrying.
+
+## 14. Canonical Local Schema Source
+To keep implementation and provisioning synchronized, FSMES uses a local schema source under `schemas/appwrite/`:
+- `schemas/appwrite/schema.mjs` (runtime constants used by setup/provision scripts)
+- `shared/utils/appwrite.ts` (shared role/status/outcome exports for app and server)
+- `schemas/appwrite/tables.ts` (typed table IDs and table definitions)
+- `schemas/appwrite/env.ts` (Appwrite environment key and resource ID resolution)
+
+Implementation rule:
+- Database setup scripts and server health checks must resolve table and bucket IDs from this schema source, not from duplicated hard-coded lists.

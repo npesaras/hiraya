@@ -7,10 +7,15 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
+    "setup:db": "node scripts/setup-appwrite-database.mjs",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxt/ui": "^4.6.0",
+    "appwrite": "^24.0.0",
+    "node-appwrite": "^23.0.0",
     "nuxt": "^4.4.2",
+    "tailwindcss": "^4.2.2",
     "vue": "^3.5.30",
     "vue-router": "^5.0.4"
   },
